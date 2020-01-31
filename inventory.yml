@@ -1,0 +1,28 @@
+all:
+  children:
+    bootstrap_node:
+      hosts:
+        bootstrap.example.com:
+          ipv4: 192.168.122.15
+    
+    masters:
+      hosts:
+        master1.example.com:
+          ipv4: 192.168.122.20
+
+        master2.example.com:
+          ipv4: 192.168.122.21
+
+        master3.example.com:
+          ipv4: 192.168.122.22
+        
+    workers:
+      hosts:
+        worker1.example.com:
+          ipv4: 192.168.122.30
+
+        worker2.example.com:
+          ipv4: 192.168.122.31
+
+        worker3.example.com:
+          ipv4: 192.168.122.32
