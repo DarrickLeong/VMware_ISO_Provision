@@ -23,7 +23,13 @@
       hotremove_cpu: True
       hotadd_memory: True
     networks:
-    - name: "{{ vm_network_name }}" 
+    - name: "{{ vm_network_name }}"
+      ip: "{{ vm_ip }}"
+      netmask: "{{ vm_netmask }}"
+      gateway: "{{ vm_gateway }}"
+    customization:
+      domain: "{{ vm_domain }}"
+      hostname: "{{ vm_hostname }}" 
     wait_for_ip_address: yes
   delegate_to: localhost
   register: deploy
