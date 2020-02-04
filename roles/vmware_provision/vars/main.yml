@@ -1,2 +1,37 @@
 ---
 # vars file for vmware_provision
+#interface_name: ens192
+vm_netmask: 255.255.255.0
+#prefix: 24
+vm_gateway: 192.168.122.1
+#dns1: 192.168.122.50
+#dns2: 8.8.8.8
+vm_domain: "{{ CLUSTERID }}.{{ DOMAIN }}"
+vm_state: poweredon
+#vm_datacenter:
+#vm_guest_id:
+#vm_datastore:
+#vm_network_name:
+#vm_folder=
+#httpd_server: 192.168.122.50
+
+nodes:
+  - vm_hostname: bootstrap01
+    vm_name: bootstrap01
+    vm_ip: 192.168.122.100
+    vm_disk_size: 16
+    vm_memory: 1000
+    vm_cpu: 1
+  - vm_hostname: master01
+    vm_name: master01
+    vm_ip: 192.168.122.101
+    vm_disk_size: 20
+    vm_memory: 2000
+    vm_cpu: 2
+  - vm_hostname: worker01
+    vm_name: worker01
+    vm_ip: 192.168.122.102
+    vm_disk_size: 25
+    vm_memory: 1000
+    vm_cpu: 1
+

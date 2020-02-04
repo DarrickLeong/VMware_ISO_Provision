@@ -1,7 +1,6 @@
 ---
 - name: Provision Vsphere VM
   hosts: localhost
-
   roles:
     - vmware_provision
 
