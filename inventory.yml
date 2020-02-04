@@ -10,26 +10,26 @@ all:
           vm_memory: 1000
           vm_cpu: 1
     
-          # masters:
-          #   hosts:
-          #     master1.example.com:
-          #       vm_ip: 192.168.122.151
-          #       vm_name: master
-          #       vm_hostname: master
-          #       vm_disk_size: 20
-          #       vm_memory: 2000
-          #       vm_cpu: 2
+    masters:
+      hosts:
+        master1.example.com:
+          vm_ip: 192.168.122.151
+          vm_name: master
+          vm_hostname: master
+          vm_disk_size: 20
+          vm_memory: 2000
+          vm_cpu: 2
 
-          # workers:
-          #   hosts:
-          #     worker1.example.com:
-          #       vm_ip: 192.168.122.152
-          #       vm_name: worker
-          #       vm_hostname: worker
-          #       vm_disk_size: 25
-          #       vm_memory: 1000
-          #       vm_cpu: 1
-          #
+    workers:
+      hosts:
+        worker1.example.com:
+          vm_ip: 192.168.122.152
+          vm_name: worker
+          vm_hostname: worker
+          vm_disk_size: 25
+          vm_memory: 1000
+          vm_cpu: 1
+    
   vars:
     #interface_name: ens192
     vm_netmask: 255.255.255.0
