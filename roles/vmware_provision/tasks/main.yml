@@ -2,9 +2,8 @@
 # tasks file for vmware_provision
 - name: Debug
   debug:
-    msg: "{{ vcenter_hostname, vcenter_username, vcenter_password, vm_folder, hostvars[item]['vm_name'], vm_state, vm_state, vm_datacenter, vm_guest_id, vm_template, hostvars[item]['vm_disk_size'], vm_datastore, hostvars[item]['vm_memory'], hostvars[item]['vm_cpu'], vm_network_name, hostvars[item]['vm_ip'], vm_netmask, vm_gateway, vm_domain, hostvars[item]['vm_hostname'], vm_dns1, vm_dns2 }}"
+    msg: "{{ groups['all'] }}"
   loop: "{{ groups['all'] }}"
-
 - name: Create a virtual machine from a template
   vmware_guest:
     hostname: "{{ vcenter_hostname }}"
@@ -29,12 +28,12 @@
       hotadd_memory: True
     networks:
     - name: "{{ vm_network_name }}"
-      ip: "{{ hostvars[item]['vm_ip'] }}"
+      ip: "{{ hostvars[item]['node_ip'] }}"
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gateway }}"
     customization:
       domain: "{{ vm_domain }}"
-      hostname: "{{ hostvars[item]['vm_hostname'] }}"
+      hostname: "{{ hostvars[item]['node_name_short'] }}"
       dns_servers:
       - "{{ vm_dns1 }}"
       - "{{ vm_dns2 }}"

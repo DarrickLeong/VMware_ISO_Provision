@@ -16,29 +16,34 @@
 
 - name: Create directory for custom RHCOS ISO files
   file:
-    path: "/data/iso/{{ item.node_name_short }}" 
+    path: "/data/iso/{{ hostvars[item]['node_name_short'] }}" 
     state: directory
-  loop: "{{ nodes }}"
+  when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names'] or 'workers' in hostvars[item]['group_names'] or 'infra-router' in hostvars[item]['group_names'] or 'infra-log-mon' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Extract RHCOS ISO to a temporary location
-  command: "/usr/bin/rsync -a /iso/ /data/iso/{{ item.node_name_short }}"
-  loop: "{{ nodes }}"
+  command: "/usr/bin/rsync -a /iso/ /data/iso/{{ hostvars[item]['node_name_short'] }}"
+  when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names'] or 'workers' in hostvars[item]['group_names'] or 'infra-router' in hostvars[item]['group_names'] or 'infra-log-mon' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Check boot entry
   debug:
     msg: "Boot entry is: {{ add_boot_entry }}"
-  loop: "{{ nodes }}"
+  when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names'] or 'workers' in hostvars[item]['group_names'] or 'infra-router' in hostvars[item]['group_names'] or 'infra-log-mon' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Modify boot entry for each node
   lineinfile:
-    dest: "/data/iso/{{ item.node_name_short }}/isolinux/isolinux.cfg"
+    dest: "/data/iso/{{ hostvars[item]['node_name_short'] }}/isolinux/isolinux.cfg"
     regexp: "^  append initrd=/images/initramfs.img nomodeset rd.neednet=1 coreos.inst=yes"
     line: "  append initrd=/images/initramfs.img nomodeset rd.neednet=1 coreos.inst=yes {{ add_boot_entry }}"
-  loop: "{{ nodes }}"
+  when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names'] or 'workers' in hostvars[item]['group_names'] or 'infra-router' in hostvars[item]['group_names'] or 'infra-log-mon' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Create new RHCOS ISO for all nodes
-  shell: 'cd /data/iso/{{ item.node_name_short }}; mkisofs -U -A "{{ item.node_name_short }}" -V "{{ item.node_name_short }}" -volset "{{ item.node_name_short }}" -J -joliet-long -r -v -T -x ./lost+found -o /data/iso/{{ item.node_name_short }}/{{ item.node_name_short }}.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e images/efiboot.img -no-emul-boot .'
-  loop: "{{ nodes }}"
+  shell: "cd /data/iso/{{ hostvars[item]['node_name_short'] }}; mkisofs -U -A {{ hostvars[item]'[node_name_short'] }} -V {{ hostvars[item]['node_name_short'] }} -volset {{ hostvars[item]['node_name_short'] }} -J -joliet-long -r -v -T -x ./lost+found -o /data/iso/{{ hostvars[item]['node_name_short'] }}/{{ hostvars[item]['node_name_short'] }}.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e images/efiboot.img -no-emul-boot ."
+  when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names'] or 'workers' in hostvars[item]['group_names'] or 'infra-router' in hostvars[item]['group_names'] or 'infra-log-mon' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
   register: output
 
 - name: Print
