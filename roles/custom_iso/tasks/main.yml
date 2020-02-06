@@ -1,0 +1,51 @@
+---
+# tasks file to create custom ISO for each OCP node
+
+- name: Create directory to mount RHCOS ISO file
+  file:
+    path: "/iso"
+    state: directory
+
+- name: Mount RHCOS ISO
+  mount:
+    path: /iso
+    src : "{{ rhcos_iso_path }}"
+    fstype: iso9660
+    opts: ro,loop
+    state: mounted
+
+- name: Create directory for custom RHCOS ISO files
+  file:
+    path: "/data/iso/{{ item.node_name_short }}" 
+    state: directory
+  loop: "{{ nodes }}"
+
+- name: Extract RHCOS ISO to a temporary location
+  command: "/usr/bin/rsync -a /iso/ /data/iso/{{ item.node_name_short }}"
+  loop: "{{ nodes }}"
+
+- name: Check boot entry
+  debug:
+    msg: "Boot entry is: {{ add_boot_entry }}"
+  loop: "{{ nodes }}"
+
+- name: Modify boot entry for each node
+  lineinfile:
+    dest: "/data/iso/{{ item.node_name_short }}/isolinux/isolinux.cfg"
+    regexp: "^  append initrd=/images/initramfs.img nomodeset rd.neednet=1 coreos.inst=yes"
+    line: "  append initrd=/images/initramfs.img nomodeset rd.neednet=1 coreos.inst=yes {{ add_boot_entry }}"
+  loop: "{{ nodes }}"
+
+- name: Create new RHCOS ISO for all nodes
+  shell: 'cd /data/iso/{{ item.node_name_short }}; mkisofs -U -A "{{ item.node_name_short }}" -V "{{ item.node_name_short }}" -volset "{{ item.node_name_short }}" -J -joliet-long -r -v -T -x ./lost+found -o /data/iso/{{ item.node_name_short }}/{{ item.node_name_short }}.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e images/efiboot.img -no-emul-boot .'
+  loop: "{{ nodes }}"
+  register: output
+
+- name: Print
+  debug:
+    var: output
+
+- name: Unmount RHCOS ISO file
+  mount:
+    path: /iso
+    state: absent

@@ -2,7 +2,8 @@
 - name: Provision Vsphere VM
   hosts: localhost
   roles:
-    - vmware_provision
+#    - vmware_provision
+    - custom_iso
 
   tasks:
 
