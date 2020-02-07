@@ -1,10 +1,13 @@
 ---
 - name: Test
-  hosts: localhost
+  hosts: preflight
 
   tasks:
   - name: test
     debug:
-      msg: "{{ hostvars[item] }}"
-    when: "'mirror' in hostvars[item]['group_names']"
+      msg: "{{ hostvars[item]['rhel7_dest'] }}"
+    when:
+    - inventory_hostname == 'mirror.ocp.example.com'
+    - "'mirror' in hostvars[item]['group_names']"
     loop: "{{ groups['all'] }}"
+

@@ -6,7 +6,9 @@
     path: "{{ hostvars[item]['rhel7-extra_dest'] }}"
     state: directory
     mode: '0755'
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 - name: Synchronization with bastion path and mirror path
@@ -14,7 +16,9 @@
     src: "{{ hostvars[item]['rhel7-extra_src_path'] }}" 
     dest: "{{ hostvars[item]['rhel7-extra_dest'] }}"
     recursive: yes
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 - name: Ensure path is there for rhel7
@@ -22,7 +26,9 @@
     path: "{{ hostvars[item]['rhel7_dest'] }}"
     state: directory
     mode: '0755'
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 - name: Synchronization with bastion path and mirror path
@@ -30,22 +36,28 @@
     src: "{{ hostvars[item]['rhel7_src_path'] }}"
     dest: "{{ hostvars[item]['rhel7_dest'] }}"
     recursive: yes
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 # delpoy jinja template for mirror
 - name: upload jinja file to vm
   template:
     src: mirror_repo.j2
-    dest: /etc/yum.repos.d/test.repo
+    dest: /etc/yum.repos.d/rhel.repo
     mode: '0644'
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 # restorecon /var/www/httpd
 - name: restorecon http
   command: restorecon -vR /var/www/html
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
@@ -54,7 +66,9 @@
   yum:
     name: httpd
     state: latest
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
@@ -62,7 +76,9 @@
   service:
     name: httpd
     state: started
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
@@ -70,26 +86,30 @@
   service:
     name: httpd
     enabled: yes
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
 # open port 80 firewall and reset firewall
 - name: Open firewall ports
   firewalld:
-    port: "{{ item }}"
+    port: 80/tcp
     permanent: yes
     state: enabled
     zone: public
-  with_items:
-    - 80/tcp
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
 - name: Reload firewall
   command: firewall-cmd --reload
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
@@ -98,7 +118,9 @@
   service:
     name: httpd
     state: restarted
-  when: "'mirror' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname == 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 
@@ -106,23 +128,32 @@
 - name: upload jinja file to vm
   template:
     src: manage_node_repo.j2
-    dest: /etc/yum.repos.d/test.repo
+    dest: /etc/yum.repos.d/rhel.repo
     mode: '0644'
-  when: "'www' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
+
 
 
 # yum repolist all to check if repo are up
 - name: run yum repolist command
   command: yum repolist all
   register: yum
-  when: "'www' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
+
 
 - name: show msg
   debug:
     msg: "{{ yum }}"
-  when: "'www' in hostvars[item]['group_names']"
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
+
 
 # run curl playbook

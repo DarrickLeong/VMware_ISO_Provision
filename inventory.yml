@@ -11,11 +11,12 @@ all:
               node_name_short: mirror
               node_name_long: mirror
           vars:
-            vm_disk_size: 20
+            vm_disk_size: 50
             vm_memory: 1000
             vm_cpu: 1
             rhel7-extra_src_path: /mnt/rhel7-extras/env1/Library/content/dist/rhel/server/7/7Server/x86_64/extras/os/
             rhel7_src_path: /mnt/rhel7/
+            rhel7_dest: /var/www/html/pub/repos/rhel7_server/
             rhel7-extra_dest: /var/www/html/pub/repos/rhel7_extra/
 
         www:
@@ -39,7 +40,7 @@ all:
               node_name_short: master3
               node_name_long: master3.ocp.example.com
           vars:
-            vm_disk_size: 20
+            vm_disk_size: 50
             vm_memory: 1000
             vm_cpu: 1
         

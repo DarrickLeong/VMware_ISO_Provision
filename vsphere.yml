@@ -3,17 +3,21 @@
   hosts: preflight
 
   roles:
-#     - infra_setup
+    - infra_setup
 
 
   tasks:
 
-- name: Provision Vsphere VM
-  hosts: localhost
 
-  roles:
+
+
+#- name: Provision Vsphere VM
+#  hosts: localhost
+#  gather_facts: no
+
+#  roles:
 #    - vmware_provision
-    - custom_iso
+#    - custom_iso
 
-  tasks:
+#  tasks:
 
