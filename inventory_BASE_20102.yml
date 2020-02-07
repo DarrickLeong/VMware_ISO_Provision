@@ -1,0 +1,103 @@
+all:
+  children:
+    bootstrap:
+      hosts:
+        bootstrap.ocp.example.com:
+          node_ip: 192.168.4.101
+          vm_name: bootstrap
+          node_name_short: bootstrap
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: bootstrap.ign
+
+    masters:
+      hosts:
+        master1.ocp.example.com:
+          node_ip: 192.168.122.102
+          vm_name: master
+          node_name_short: master
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: master.ign
+
+    workers:
+      hosts:
+        worker1.example.com:
+          node_ip: 192.168.122.103
+          vm_name: worker
+          node_name_short: worker
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+
+    infra-router:
+      hosts:
+        infra1.example.com:
+          node_ip: 192.168.122.104
+          vm_name: worker
+          node_name_short: worker
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+
+    infra-log-mon:
+      hosts:
+        infra1.example.com:
+          node_ip: 192.168.122.105
+          vm_name: worker
+          node_name_short: worker
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+
+
+        #    
+        #    www:
+        #      hosts:
+        #        www.example.com:
+        #          vm_ip: 192.168.122.153
+        #          vm_name: 
+        #          vm_hostname: 
+        #      vars:
+        #        vm_disk_size: 20
+        #        vm_memory: 1000
+        #        vm_cpu: 1
+  vars:
+    interface_name: ens192
+    vm_netmask: 255.255.255.0
+    prefix: 24
+    vm_gateway: 192.168.4.1
+    vm_dns1: 192.168.4.100
+    vm_dns2: 8.8.8.8
+    cluster_id: ocp4
+    domain: example.com
+    vm_domain: "{{ cluster_id }}.{{ domain }}"
+    vm_state: poweredon
+    httpd_server:
+    install_dev: sda
+    add_boot_entry: "ip={{ hostvars[item]['node_ip'] }}::{{ vm_gateway }}:{{ vm_netmask }}:{{ group['all'] }}:{{ interface_name }}:none nameserver={{ vm_dns1 }} coreos.inst.install_dev={{ install_dev }} coreos.inst.image_url={{ image_url }} coreos.inst.ignition_url={{ ignition_url }}"
+    ### place a copy of RHCOS ISO in the path below ###
+    rhcos_iso_path: "roles/custom_iso/files/rhcos-4.2.0-x86_64-installer.iso"
+    image_url: "http://{{ httpd_server }}/install/rhcos-4.2.0-x86_64-metal.raw.gz"
+    ignition_url: "http://{{ httpd_server }}/ignition/{{ item.original_ignition_file }}"
+    httpd_server: "httpdserver.ocp4.example.com"
+    #vcenter_hostname:
+    #vcenter_username:
+    #vcenter_password:
+    #vm_template:
+    #vm_datacenter:
+    #vm_guest_id:
+    #vm_datastore:
+    #vm_network_name:
+    #vm_folder=
+

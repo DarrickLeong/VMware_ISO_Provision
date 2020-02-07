@@ -12,8 +12,8 @@
   hosts: localhost
 
   roles:
-    - vmware_provision
-#    - custom_iso
+#    - vmware_provision
+    - custom_iso
 
   tasks:
 

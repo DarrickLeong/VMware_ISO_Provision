@@ -1,0 +1,157 @@
+all:
+  children:
+    www:
+      hosts:
+        mirror.example.com:
+          ansible_host: 192.168.99.102
+          node_ip: 192.168.99.102
+          vm_name: mirror
+          node_name_short: mirror
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: bootstrap.ign
+
+    bootstrap:
+      hosts:
+        bootstrap.ocp.example.com:
+          node_ip: 192.168.4.101
+          vm_name: bootstrap
+          node_name_short: bootstrap
+          node_name_long: bootstrap.ocp.example.com
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: bootstrap.ign
+  
+    masters:
+      hosts:
+        master1.ocp.example.com:
+          node_ip: 192.168.122.102
+          vm_name: master1
+          node_name_short: master1
+          node_name_long: master1.ocp.example.com
+        master2.ocp.example.com:
+          node_ip: 192.168.122.103
+          vm_name: master2
+          node_name_short: master2
+          node_name_long: master2.ocp.example.com
+        master3.ocp.example.com:
+          node_ip: 192.168.122.104
+          vm_name: master3
+          node_name_short: master3
+          node_name_long: master3.ocp.example.com
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: master.ign
+  
+    workers:
+      hosts:
+        worker1.ocp.example.com:
+          node_ip: 192.168.122.105
+          vm_name: worker1
+          node_name_short: worker1
+          node_name_long: worker1.ocp.example.com
+        worker2.ocp.example.com:
+          node_ip: 192.168.122.106
+          vm_name: worker2
+          node_name_short: worker2
+          node_name_long: worker2.ocp.example.com
+        worker3.ocp.example.com:
+          node_ip: 192.168.122.107
+          vm_name: worker3
+          node_name_short: worker3
+          node_name_long: worker3.ocp.example.com
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+  
+    infra-router:
+      hosts:
+        infra-router1.ocp.example.com:
+          node_ip: 192.168.122.108
+          vm_name: infra-router1
+          node_name_short: infra-router1
+          node_name_long: infra-router1.ocp.example.com
+        infra-router2.ocp.example.com:
+          node_ip: 192.168.122.109
+          vm_name: infra-router2
+          node_name_short: infra-router2
+          node_name_long: infra-router2.ocp.example.com
+        infra-router3.ocp.example.com:
+          node_ip: 192.168.122.110
+          vm_name: infra-router3
+          node_name_short: infra-router3
+          node_name_long: infra-router3.ocp.example.com
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+  
+    infra-log-mon:
+      hosts:
+        infra-logmon1.ocp.example.com:
+          node_ip: 192.168.122.111
+          vm_name: infra-logmon1
+          node_name_short: infra-logmon1
+          node_name_long: infra-logmon1.ocp.example.com
+        infra-logmon2.ocp.example.com:
+          node_ip: 192.168.122.112
+          vm_name: infra-logmon2
+          node_name_short: infra-logmon2
+          node_name_long: infra-logmon2.ocp.example.com
+        infra-logmon3.ocp.example.com:
+          node_ip: 192.168.122.113
+          vm_name: infra-logmon3
+          node_name_short: infra-logmon3
+          node_name_long: infra-logmon3.ocp.example.com
+      vars:
+        vm_disk_size: 20
+        vm_memory: 1000
+        vm_cpu: 1
+        original_ignition_file: worker.ign
+        #    www:
+        #      hosts:
+        #        www.example.com:
+        #          vm_ip: 192.168.122.153
+        #          vm_name: 
+        #          vm_hostname: 
+        #      vars:
+        #        vm_disk_size: 20
+        #        vm_memory: 1000
+        #        vm_cpu: 1
+
+  vars:
+    interface_name: ens192
+    vm_netmask: 255.255.255.0
+    prefix: 24
+    vm_gateway: 192.168.4.1
+    vm_dns1: 192.168.4.100
+    vm_dns2: 8.8.8.8
+    cluster_id: ocp4
+    domain: example.com
+    vm_domain: "{{ cluster_id }}.{{ domain }}"
+    vm_state: poweredon
+    install_dev: sda
+    rhcos_iso_path: "roles/custom_iso/files/rhcos-4.2.0-x86_64-installer.iso"
+    image_url: "http://{{ httpd_server }}/install/rhcos-4.2.0-x86_64-metal.raw.gz"
+    ignition_url: "http://{{ httpd_server }}/ignition/{{ hostvars[item]['original_ignition_file'] }}"
+    httpd_server: "httpdserver.ocp4.example.com"
+    add_boot_entry: "ip={{ hostvars[item]['node_ip'] }}::{{ vm_gateway }}:{{ vm_netmask }}:{{ hostvars[item]['node_name_long'] }}:{{ interface_name }}:none nameserver={{ vm_dns1 }} coreos.inst.install_dev={{ install_dev }} coreos.inst.image_url={{ image_url }} coreos.inst.ignition_url={{ ignition_url }}"
+    #vcenter_hostname:
+    #vcenter_username:
+    #vcenter_password:
+    #vm_template:
+    #vm_datacenter:
+    #vm_guest_id:
+    #vm_datastore:
+    #vm_network_name:
+    #vm_folder=
+
