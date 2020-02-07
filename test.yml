@@ -6,5 +6,5 @@
   - name: test
     debug:
       msg: "{{ hostvars[item] }}"
-    when: "'bootstrap' in hostvars[item]['group_names'] or 'masters' in hostvars[item]['group_names']"
+    when: "'mirror' in hostvars[item]['group_names']"
     loop: "{{ groups['all'] }}"

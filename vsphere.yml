@@ -1,6 +1,6 @@
 ---
 - name: Provision Vsphere VM
-  hosts: test.example.com
+  hosts: preflight
 
   roles:
 #     - infra_setup

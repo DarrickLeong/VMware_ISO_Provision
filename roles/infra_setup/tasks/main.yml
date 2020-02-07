@@ -1,26 +1,128 @@
 ---
 # tasks file for infra_setup
+# sync over files from ansible to mirror
 - name: Ensure path is there for rhel7 extra
   file:
-    path: /var/www/html/pub/repos/rhel7_extra/
+    path: "{{ hostvars[item]['rhel7-extra_dest'] }}"
     state: directory
     mode: '0755'
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Synchronization with bastion path and mirror path
   synchronize:
-    src: /mnt/rhel7-extras/env1/Library/content/dist/rhel/server/7/7Server/x86_64/extras/os/ 
-    dest: /var/www/html/pub/repos/rhel7_extra/
+    src: "{{ hostvars[item]['rhel7-extra_src_path'] }}" 
+    dest: "{{ hostvars[item]['rhel7-extra_dest'] }}"
     recursive: yes
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Ensure path is there for rhel7
   file:
-    path: /var/www/html/pub/repos/rhel7/
+    path: "{{ hostvars[item]['rhel7_dest'] }}"
     state: directory
     mode: '0755'
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
 - name: Synchronization with bastion path and mirror path
   synchronize:
-    src: /mnt/rhel7/
-    dest: /var/www/html/pub/repos/rhel7/
+    src: "{{ hostvars[item]['rhel7_src_path'] }}"
+    dest: "{{ hostvars[item]['rhel7_dest'] }}"
     recursive: yes
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
 
+# delpoy jinja template for mirror
+- name: upload jinja file to vm
+  template:
+    src: mirror_repo.j2
+    dest: /etc/yum.repos.d/test.repo
+    mode: '0644'
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+# restorecon /var/www/httpd
+- name: restorecon http
+  command: restorecon -vR /var/www/html
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+# install enable httpd
+- name: Install apache
+  yum:
+    name: httpd
+    state: latest
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+- name: Start httpd service
+  service:
+    name: httpd
+    state: started
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+- name: Enable service httpd
+  service:
+    name: httpd
+    enabled: yes
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+# open port 80 firewall and reset firewall
+- name: Open firewall ports
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 80/tcp
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+- name: Reload firewall
+  command: firewall-cmd --reload
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+# reload httpd
+- name: restart apache
+  service:
+    name: httpd
+    state: restarted
+  when: "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+# deploy jinja template to manage nodes for repo sync
+- name: upload jinja file to vm
+  template:
+    src: manage_node_repo.j2
+    dest: /etc/yum.repos.d/test.repo
+    mode: '0644'
+  when: "'www' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+
+# yum repolist all to check if repo are up
+- name: run yum repolist command
+  command: yum repolist all
+  register: yum
+  when: "'www' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+- name: show msg
+  debug:
+    msg: "{{ yum }}"
+  when: "'www' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+# run curl playbook
