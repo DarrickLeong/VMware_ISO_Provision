@@ -1,0 +1,26 @@
+---
+# tasks file for infra_setup
+- name: Ensure path is there for rhel7 extra
+  file:
+    path: /var/www/html/pub/repos/rhel7_extra/
+    state: directory
+    mode: '0755'
+
+- name: Synchronization with bastion path and mirror path
+  synchronize:
+    src: /mnt/rhel7-extras/env1/Library/content/dist/rhel/server/7/7Server/x86_64/extras/os/ 
+    dest: /var/www/html/pub/repos/rhel7_extra/
+    recursive: yes
+
+- name: Ensure path is there for rhel7
+  file:
+    path: /var/www/html/pub/repos/rhel7/
+    state: directory
+    mode: '0755'
+
+- name: Synchronization with bastion path and mirror path
+  synchronize:
+    src: /mnt/rhel7/
+    dest: /var/www/html/pub/repos/rhel7/
+    recursive: yes
+

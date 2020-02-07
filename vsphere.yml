@@ -1,6 +1,16 @@
 ---
 - name: Provision Vsphere VM
+  hosts: test.example.com
+
+  roles:
+#     - infra_setup
+
+
+  tasks:
+
+- name: Provision Vsphere VM
   hosts: localhost
+
   roles:
     - vmware_provision
 #    - custom_iso

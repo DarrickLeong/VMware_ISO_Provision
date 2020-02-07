@@ -40,6 +40,7 @@
     wait_for_ip_address: yes
   delegate_to: localhost
   register: deploy
+  when: "'www' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
 - name: Wait for system to become reachable over SSH
