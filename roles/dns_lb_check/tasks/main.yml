@@ -1,90 +1,57 @@
-# vm create
-# config -> POn
-# POff
-#   POn
-#   curl
-#     80
-#     443
-#     6443
-#     22623
-#   POff
-
 ---
 # tasks file for dns_lb_check
-#  - name: power off   
-#    vmware_host_powerstate:
-#      hostname: "{{ hostvars[item]['vcenter_hostname'] }}"
-#      username: "{{ hostvars[item]['vcenter_username'] }}"
-#      password: "{{ hostvars[item]['vcenter_password'] }}"
-#      validate_certs: no
-#      state: power-down-to-standby
-#    loop: "{{ groups['all'] }}"
-#    register: power-mode
-#  - name: output power status
-#    debug:
-#      var: power-mode
-- name: Install pip
-  yum:
-    name: python3-pip-9.0.3-5.el7.noarch
-    state: present
-
-- name: Install pyvim using pip
-  pip:
-    name: pyvmomi
-    state: present
-    executable: pip3
-  register: status
-
-- name: Showing status
-  debug:
-    var: status
-
-- name: power on   
-  vmware_host_powerstate:
+- name: Set the state of a virtual machine to poweron
+  vmware_guest_powerstate:
     hostname: "{{ vcenter_hostname }}"
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
     validate_certs: no
-    state: power-up-from-standby
-    esxi_hostname: inventory_hostname
-  register: power-mode
+    folder: "/{{ vm_datacenter }}/{{ cluster_id }}{{ vm_folder }}"
+    name: "{{ vm_name }}"
+    state: powered-on
+  delegate_to: localhost
+  register: status
 
 - name: output power status
   debug:
-    var: power-mode
+    msg: "{{ status }}"
 
-- name: Create output log
-  lineinfile:
-    create: yes
-    path: /tmp/curl_test.txt
-    line: "------------------------------\n {{ inventory_hostname }}\n ----------------------------\n"
-  delegate_to: 127.0.0.1
+- name: Wait 600 seconds for target connection to become reachable/usable
+  wait_for_connection:
 
 
-- name: Curl port "{{ item }}" from localhost
-  uri:
-    url: "http://{{ inventory_hostname }}:{{ item }}"
-    return_content: yes
-  register: msg
-  with_items:
-    - 80
-    - 443
-    - 6443
-    - 22623
-  delegate_to: 127.0.0.1
-  ignore_errors: true
-
-- name: Create output log
-  lineinfile:
-    create: yes
-    path: /tmp/curl_test.txt
-    line: "{{ msg.content }} url:{{ msg.url }}\n Fail:{{ msg.failed }}\n on port {{ item }}\n---------------------\n"
-  with_items:
-    - 80
-    - 443
-    - 6443
-    - 22623
-  delegate_to: 127.0.0.1
+#- name: Create output log
+#  lineinfile:
+#    create: yes
+#    path: /tmp/curl_test.txt
+#    line: "------------------------------\n {{ inventory_hostname }}\n ----------------------------\n"
+#  delegate_to: 127.0.0.1
+#
+#
+#- name: Curl port "{{ item }}" from localhost
+#  uri:
+#    url: "http://{{ inventory_hostname }}:{{ item }}"
+#    return_content: yes
+#  register: msg
+#  with_items:
+#    - 80
+#    - 443
+#    - 6443
+#    - 22623
+#  delegate_to: 127.0.0.1
+#  ignore_errors: true
+#
+#- name: Create output log
+#  lineinfile:
+#    create: yes
+#    path: /tmp/curl_test.txt
+#    line: "{{ msg.content }} url:{{ msg.url }}\n Fail:{{ msg.failed }}\n on port {{ item }}\n---------------------\n"
+#  with_items:
+#    - 80
+#    - 443
+#    - 6443
+#    - 22623
+#  delegate_to: 127.0.0.1
 
 #    when: power-mode == 'on'
 #  - name: check curl-output

@@ -123,6 +123,9 @@
   - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
+################################
+#     For non mirror hosts     #                        
+################################
 
 # deploy jinja template to manage nodes for repo sync
 - name: upload jinja file to vm
@@ -135,8 +138,6 @@
   - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
-
-
 # yum repolist all to check if repo are up
 - name: run yum repolist command
   command: yum repolist all
@@ -146,7 +147,6 @@
   - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
-
 - name: show msg
   debug:
     msg: "{{ yum }}"
@@ -155,5 +155,48 @@
   - "'mirror' in hostvars[item]['group_names']"
   loop: "{{ groups['all'] }}"
 
+# Ensure pip is installed
+- name: Install pip
+  yum:
+    name: python3-pip-9.0.3-5.el7.noarch
+    state: present
 
-# run curl playbook
+# Ensure path to install python package is there and rsync over file
+- name: Ensure path is there for python package
+  file:
+    path: "{{ hostvars[item]['python_pack_dest'] }}"
+    state: directory
+    mode: '0755'
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+- name: Synchronization with bastion path and mirror path
+  synchronize:
+    src: "{{ hostvars[item]['python_pack_path'] }}"
+    dest: "{{ hostvars[item]['python_pack_dest'] }}"
+    recursive: yes
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+# Run bash script to install pyvmomi
+ - name: Run Bash Script install pyvmomi
+   script: /home/pip_packages/run.sh
+   register: status
+   when:
+   - inventory_hostname != 'mirror.ocp.example.com'
+   - "'mirror' in hostvars[item]['group_names']"
+   loop: "{{ groups['all'] }}"
+
+- name: Showing status
+  debug:
+    var: status
+  when:
+  - inventory_hostname != 'mirror.ocp.example.com'
+  - "'mirror' in hostvars[item]['group_names']"
+  loop: "{{ groups['all'] }}"
+
+

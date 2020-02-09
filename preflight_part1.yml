@@ -1,0 +1,39 @@
+---
+# Provision Preflight VMs 1 mirror and 3 Master
+- name: Provision Vsphere VM
+  hosts: preflight
+  gather_facts: no
+
+  roles:
+    - vmware_provision
+
+
+#####################################
+
+# Setup Mirror webserver repo and point all Master's repo to Mirror webserver
+# Install httpd for all preflight's hosts
+# Install python package if needed for preflight part 2 test
+
+- name: Provision Vsphere VM
+  hosts: preflight
+
+  roles:
+    - infra_setup
+
+
+#####################################
+
+# Configure firewall ports and install httpd for all 'www' hosts
+# Create html file for preflight part 2 test
+
+- name: Health Check
+  hosts: www
+
+  roles:
+    - firewalld_open
+    - apache_install
+    - create_html
+
+#####################################
+
+

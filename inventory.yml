@@ -18,6 +18,9 @@ all:
             rhel7_src_path: /mnt/rhel7/
             rhel7_dest: /var/www/html/pub/repos/rhel7_server/
             rhel7-extra_dest: /var/www/html/pub/repos/rhel7_extra/
+            python_pack_path: /home/pip_packages/
+            python_pack_dest: /home/pip_packages/
+
 
         www:
           hosts:    
@@ -43,6 +46,8 @@ all:
             vm_disk_size: 50
             vm_memory: 1000
             vm_cpu: 1
+            python_pack_path: /home/pip_packages/
+            python_pack_dest: /home/pip_packages/
         
     bootstrap:
       hosts:
@@ -177,7 +182,7 @@ all:
     #vcenter_hostname:
     #vcenter_username:
     #vcenter_password:
-    vm_version
+    #vm_version:
     #vm_template:
     #vm_datacenter:
     #vm_guest_id:

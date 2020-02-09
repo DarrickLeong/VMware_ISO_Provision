@@ -1,0 +1,53 @@
+---
+# Power down all www hosts for individual Curl Test
+- name: Power down hosts for curl test
+  hosts: www
+  gather_facts: no
+  
+  tasks:
+  - name: Set the state of a virtual machine to power
+    vmware_guest_powerstate:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      folder: "/{{ vm_datacenter }}/{{ cluster_id }}{{ vm_folder }}"
+      name: "{{ vm_name }}"
+      state: powered-off
+    delegate_to: localhost
+
+#####################################
+
+# Playbook runs 1 host at a time
+# Power up host and curl each ports
+# Post task powers down the host after curl and output is push to /tmp/curl_test.txt
+
+- name: DNS LB Check
+  hosts: localhost
+  gather_facts: no
+  serial: 1
+
+  roles:
+    - dns_lb_check
+  tasks:
+  - name: Do Curl test on each host and on each port
+    include: curlport.yml
+    with_items:
+      - 80
+      - 443
+      - 6443
+      - 22623
+
+  post_tasks:
+  - name: Set the state of a virtual machine to power
+    vmware_guest_powerstate:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      folder: "/{{ vm_datacenter }}/{{ cluster_id }}{{ vm_folder }}"
+      name: "{{ vm_name }}"
+      state: powered-off
+    delegate_to: localhost
+
+#####################################

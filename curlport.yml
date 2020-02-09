@@ -1,4 +1,11 @@
 ---
+- name: Create output log
+  lineinfile:
+    create: yes
+    path: /tmp/curl_test.txt
+    line: "------------------------------\n {{ inventory_hostname }}\n ----------------------------\n"
+  delegate_to: 127.0.0.1
+
 - name: Curl port "{{ item }}" from localhost
   uri:
     url: "http://{{ inventory_hostname }}:{{ item }}"
@@ -9,7 +16,6 @@
 
 - name: Create output log
   lineinfile:
-    create: yes
     path: /tmp/curl_test.txt
     line: "{{ msg.content }} url:{{ msg.url }}\n Fail:{{ msg.failed }}\n on port {{ item }}\n---------------------\n"
   delegate_to: 127.0.0.1
