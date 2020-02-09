@@ -148,16 +148,6 @@ all:
         vm_memory: 1000
         vm_cpu: 1
         original_ignition_file: worker.ign
-        #    www:
-        #      hosts:
-        #        www.example.com:
-        #          vm_ip: 192.168.122.153
-        #          vm_name: 
-        #          vm_hostname: 
-        #      vars:
-        #        vm_disk_size: 20
-        #        vm_memory: 1000
-        #        vm_cpu: 1
 
   vars:
     interface_name: ens192

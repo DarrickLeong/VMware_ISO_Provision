@@ -1,0 +1,20 @@
+---
+- name: Health Check
+  hosts: all
+
+  roles:
+    - firewalld_open
+    - apache_install
+    - create_html
+
+  post_tasks:
+  - name: Do Curl test on each host and on each port
+    include: curlport.yml
+    with_items:
+      - 80
+      - 443
+      - 6443
+      - 22623 
+  
+
+
