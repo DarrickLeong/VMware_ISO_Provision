@@ -1,0 +1,28 @@
+---
+# tasks file for dns_check
+- name: Initialize cluster_ips var
+  set_fact:
+    cluster_ips: []
+
+- name: Register all IP in cluster
+  set_fact:
+    cluster_ips: "{{ cluster_ips + [ hostvars[item]['node_ip'] ] }}"
+  loop: "{{ groups['all'] }}"
+
+- debug:
+    msg:  "{{ cluster_ips }}"
+
+- name: Check A records for servers
+  command: "dig {{ item }} +short"
+  loop: "{{ groups['all'] }}"
+  register: check_a_records_servers
+
+- name: Debug check_a_records_servers
+  debug:
+    msg: "{{ check_a_records_servers }}"
+
+- name: Validate that each IP on DNS is available 
+  fail:
+    msg: "{{ item.item }} not found in DNS"
+  when: item.stdout not in cluster_ips
+  loop: "{{ check_a_records_servers.results }}"

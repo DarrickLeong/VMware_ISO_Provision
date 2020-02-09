@@ -30,6 +30,24 @@
       state: absent
     delegate_to: 127.0.0.1
 
+- name: Create certs on mirror
+  hosts: mirror
+
+  roles:
+    - name: create_cert
+
+- name: OCP 4 Setup
+  hosts: localhost
+
+  roles:
+    - ocp_setup
+
+- name: Copy files to webserver
+  hosts: mirror
+
+  roles:
+    - copy_to_www
+
 
 #- name: Provision Vsphere VM
 #  hosts: localhost

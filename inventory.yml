@@ -166,9 +166,18 @@ all:
     ignition_url: "http://{{ httpd_server }}/ignition/{{ hostvars[item]['original_ignition_file'] }}"
     httpd_server: "httpdserver.ocp4.example.com"
     add_boot_entry: "ip={{ hostvars[item]['node_ip'] }}::{{ vm_gateway }}:{{ vm_netmask }}:{{ hostvars[item]['node_name_long'] }}:{{ interface_name }}:none nameserver={{ vm_dns1 }} coreos.inst.install_dev={{ install_dev }} coreos.inst.image_url={{ image_url }} coreos.inst.ignition_url={{ ignition_url }}"
+    cert_country: .
+    cert_state: .
+    cert_locality: .
+    cert_org: .
+    cert_org_unit: .
+    cert_email: .
+    pull_secret: xxxx
+    mirror_fqdn: bastion.example.com
     #vcenter_hostname:
     #vcenter_username:
     #vcenter_password:
+    vm_version
     #vm_template:
     #vm_datacenter:
     #vm_guest_id:

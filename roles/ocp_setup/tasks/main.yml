@@ -1,0 +1,65 @@
+---
+- name: Update ca trust
+  command: update-ca-trust
+
+- name: Create Openshift deployment directories
+  file:
+    path: "{{ playbook_dir }}/files"
+    state: directory
+
+- name: Untar the package
+  command: "tar -xzf {{ playbook_dir }}/files/openshift-client-linux-4.2.10.tar.gz"
+  args:
+    chdir: "{{ playbook_dir }}/files"
+
+- name: Move the binary to bin
+  copy:
+    src: "{{ playbook_dir }}/files/oc"
+    dest: /usr/local/sbin/
+    mode: '0755'
+
+- name: Move OC command to bin
+  copy:
+    src: "{{ playbook_dir }}/files/kubectl"
+    dest: /usr/local/sbin/
+    mode: '0755'
+
+- name: Untar the package
+  command: "tar -xzf {{ playbook_dir }}/files/openshift-install-linux-4.2.10.tar.gz"
+  args:
+    chdir: "{{ playbook_dir }}/files"
+
+- name: Move installer command to bin
+  copy:
+    src: "{{ playbook_dir }}/files/openshift-install"
+    dest: /usr/local/sbin/
+    mode: '0755'
+
+- name: Create Openshift deployment directories
+  file:
+    path: "{{ playbook_dir }}/files/installation"
+    state: directory
+
+- name: Generate ssh key
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+
+- name: Generate install_config file
+  template:
+    src: install-config.yaml.j2
+    dest: "{{ playbook_dir }}/files/installation/install-config.yaml"
+  vars:
+    crt_var: "{{ lookup('file', '/etc/pki/ca-trust/source/anchors/domain.crt') }}"
+    ssh_var: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Generate manifests files
+  command: openshift-install create manifests --dir="{{ playbook_dir }}/files/installation/"
+
+- name: Set mastersSchedulable to false
+  lineinfile:
+    path: "{{ playbook_dir }}/files/installation/manifests/cluster-scheduler-02-config.yml"
+    regexp: '^  mastersSchedulable: true'
+    line: '  mastersSchedulable: false'
+
+- name: Create ignition files
+  command: openshift-install create ignition-configs --dir="{{ playbook_dir }}/files/installation/"

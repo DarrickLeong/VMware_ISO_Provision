@@ -1,0 +1,30 @@
+---
+- name: Make sure that the ignition directory exists
+  file:
+    path: /var/www/html/ignition
+    state: directory
+
+- name: Make sure that the install directory exists
+  file: 
+    path: /var/www/html/install
+    state: directory
+
+- name: Copy bootstrap ign files to web server
+  copy:
+    src: "{{ playbook_dir }}/files/installation/bootstrap.ign"
+    dest: /var/www/html/ignition/bootstrap.ign
+
+- name: Copy worker ign files to web server
+  copy:
+    src: "{{ playbook_dir }}/files/installation/worker.ign"
+    dest: /var/www/html/ignition/worker.ign
+
+- name: Copy master ign files to web server
+  copy:
+    src: "{{ playbook_dir }}/files/installation/master.ign"
+    dest: /var/www/html/ignition/master.ign
+
+- name: Copy bios file to web server
+  copy:
+    src: "{{ playbook_dir }}/files/rhcos-4.2.0-x86_64-metal-bios.raw.gz"
+    dest: /var/www/html/install/bios.raw.gz
