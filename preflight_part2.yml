@@ -51,3 +51,42 @@
     delegate_to: localhost
 
 #####################################
+
+- name: DNS Check
+  hosts: localhost
+  gather_facts: no
+
+  roles:
+    - dns_check
+
+#####################################
+
+- name: Generate certs on webserver
+  hosts: mirrow
+  
+  roles:
+    - create_cert
+
+#####################################
+
+- name: Generate ignition files
+  hosts: localhost
+
+  roles:
+    - ocp_setup
+
+#####################################
+
+- name: Push files to webserver
+  hosts: webserver
+
+  roles:
+    - copy_to_www
+
+#####################################
+
+- name: Create custom ISO 
+  hosts: localhost
+
+  roles:
+    - custom_iso
